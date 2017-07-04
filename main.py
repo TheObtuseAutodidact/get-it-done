@@ -18,15 +18,28 @@ class Task(db.Model):
         self.name = name
 
 
-tasks = []
+# tasks = []
 @app.route("/", methods=["GET", "POST"])
-def todos():
+def index():
 
     if request.method == "POST":
-        task = request.form["task"]
-        tasks.append(task)
+        task_name = request.form["task"]
+        # tasks.append(task)
+        new_task = Task(name=task_name)
+        db.session.add(new_task)
+        db.session.commit()
+
+    tasks = Task.query.all()
 
     return render_template("todos.html", title="Get It Done!",tasks=tasks)
+
+@app.route("/delete-task", methods=["POST"])
+def delete_task():
+    task_id = int(request.form['task-id'])
+    task = Task.query.get(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    return redirect("/")
 
 if __name__ == '__main__':
     app.run()
